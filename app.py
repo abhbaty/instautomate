@@ -1,8 +1,11 @@
-import uvicorn
-from main import app
+import gradio as gr
+from main import app as custom_app
 
-# Hugging Face Gradio Spaces always expose port 7860.
-# By running our FastAPI app on this port inside app.py, 
-# the Space will host our web app perfectly on the Free tier.
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+# Create a dummy Gradio interface to keep Hugging Face happy
+demo = gr.Blocks()
+with demo:
+    gr.Markdown("# 🤖 InstaAutomate is Running!\n\nAccess your dashboard at [**`/dashboard`**](/dashboard).")
+
+# Mount our FastAPI app. Hugging Face's SDK will detect 'app' and run it using its own Uvicorn.
+app = gr.mount_gradio_app(custom_app, demo, path="/gradio_home")
+
