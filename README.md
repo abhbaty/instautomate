@@ -1,3 +1,14 @@
+---
+title: Instaautomate
+emoji: 🤖
+colorFrom: indigo
+colorTo: purple
+sdk: gradio
+sdk_version: 4.36.0
+app_file: app.py
+pinned: false
+---
+
 # 🤖 InstaAutomate — Instagram Comment-to-DM Automation Tool
 
 > **ManyChat-style automation using the official Meta Graph API.**
