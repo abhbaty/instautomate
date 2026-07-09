@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InstaAutomate — Comment-to-DM Dashboard</title>
+  <meta name="description" content="Automate Instagram comment replies and direct messages based on keyword triggers. ManyChat-style automation powered by the official Meta Graph API." />
+
+  <!-- Preconnect for Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link rel="stylesheet" href="/static/style.css" />
+
+  <!-- Favicon (emoji) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="sidebar" role="navigation" aria-label="Main Navigation">
+    <div class="sidebar-logo">
+      <div class="logo-icon" aria-hidden="true">🤖</div>
+      <div>
+        <div class="logo-text">InstaAutomate</div>
+        <div class="logo-sub">Comment → DM Tool</div>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Automation</div>
+      <button class="nav-item active" data-page="campaigns" id="nav-campaigns" aria-label="Campaigns page">
+        <span class="nav-icon" aria-hidden="true">🚀</span>
+        Campaigns
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Configuration</div>
+      <button class="nav-item" data-page="settings" id="nav-settings" aria-label="Settings page">
+        <span class="nav-icon" aria-hidden="true">⚙️</span>
+        Settings
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="/docs" target="_blank" rel="noopener" aria-label="API Documentation">
+        📄 API Docs
+      </a>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN ==================== -->
+  <div class="main-content">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">🚀 Campaigns</div>
+      </div>
+      <div class="topbar-stats" role="status" aria-live="polite">
+        <div class="stat-chip">
+          <span class="stat-num" id="stat-active">—</span>
+          <span class="stat-lbl">Active</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-num" id="stat-total">—</span>
+          <span class="stat-lbl">Campaigns</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-num" id="stat-processed">—</span>
+          <span class="stat-lbl">Processed</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== CAMPAIGNS PAGE ==================== -->
+    <main id="page-campaigns" class="page-panel active" role="main">
+      <div class="section-header">
+        <div>
+          <h1>Automation Campaigns</h1>
+          <p>Each campaign monitors a post for keywords and auto-replies + DMs commenters.</p>
+        </div>
+        <button class="btn btn-primary" id="btn-new-campaign" aria-label="Create new campaign">
+          ✨ New Campaign
+        </button>
+      </div>
+
+      <div class="campaigns-grid" id="campaigns-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </main>
+
+    <!-- ==================== SETTINGS PAGE ==================== -->
+    <section id="page-settings" class="page-panel" aria-label="Settings">
+      <div class="section-header">
+        <div>
+          <h2>⚙️ Instagram API Settings</h2>
+          <p>Enter your Meta credentials. Values are stored securely in the database.</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+
+        <!-- Credentials card -->
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-title">
+            <span class="card-icon" aria-hidden="true">🔑</span>
+            Instagram Credentials
+          </div>
+
+          <form id="settings-form" novalidate>
+            <div class="form-grid">
+
+              <div class="form-group full-width">
+                <label for="cfg-INSTAGRAM_ACCESS_TOKEN">Long-Lived User Access Token</label>
+                <input
+                  type="password"
+                  id="cfg-INSTAGRAM_ACCESS_TOKEN"
+                  name="INSTAGRAM_ACCESS_TOKEN"
+                  placeholder="Enter new token (leave blank to keep current)"
+                  autocomplete="off"
+                />
+                <span class="field-hint">
+                  60-day token from Meta Graph API Explorer. See README for refresh guide.
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="cfg-INSTAGRAM_BUSINESS_ACCOUNT_ID">Instagram Business Account ID</label>
+                <input
+                  type="text"
+                  id="cfg-INSTAGRAM_BUSINESS_ACCOUNT_ID"
+                  name="INSTAGRAM_BUSINESS_ACCOUNT_ID"
+                  placeholder="e.g. 17841400123456789"
+                  autocomplete="off"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="cfg-FACEBOOK_APP_SECRET">Facebook App Secret</label>
+                <input
+                  type="password"
+                  id="cfg-FACEBOOK_APP_SECRET"
+                  name="FACEBOOK_APP_SECRET"
+                  placeholder="From your Meta Developer App"
+                  autocomplete="off"
+                />
+                <span class="field-hint">Used to verify webhook signature (X-Hub-Signature-256).</span>
+              </div>
+
+              <div class="form-group">
+                <label for="cfg-WEBHOOK_VERIFY_TOKEN">Webhook Verify Token</label>
+                <input
+                  type="text"
+                  id="cfg-WEBHOOK_VERIFY_TOKEN"
+                  name="WEBHOOK_VERIFY_TOKEN"
+                  placeholder="A random secret string you choose"
+                  autocomplete="off"
+                />
+                <span class="field-hint">Must match what you set in the Meta webhook settings panel.</span>
+              </div>
+
+            </div>
+
+            <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+              <button type="submit" class="btn btn-primary" id="settings-save-btn">
+                💾 Save Settings
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Webhook info card -->
+        <div class="card">
+          <div class="card-title">
+            <span class="card-icon" aria-hidden="true">🔗</span>
+            Webhook Configuration
+          </div>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">
+            Configure this URL in your Meta Developer App → Instagram → Webhooks:
+          </p>
+          <div class="info-box" style="font-family:monospace;word-break:break-all;">
+            <strong>Callback URL</strong>
+            https://&lt;your-domain&gt;/webhook/instagram
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">
+            Subscribe to the <code>comments</code> field. Use the same Verify Token saved above.
+          </p>
+        </div>
+
+        <!-- DM limitation notice -->
+        <div class="card">
+          <div class="card-title">
+            <span class="card-icon" aria-hidden="true">⚠️</span>
+            DM Limitation Notice
+          </div>
+          <div class="warning-box">
+            <strong>Instagram DM Restrictions</strong>
+            The Graph API can only send DMs to users who have <em>previously messaged
+            your business</em>, or when your app has the
+            <code>instagram_manage_messages</code> permission approved for DM automation.
+            Apply through Meta's App Review process.
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">
+            Comment replies are public and do not have this restriction.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- /.main-content -->
+</div><!-- /.app-wrapper -->
+
+<!-- ==================== CAMPAIGN MODAL ==================== -->
+<div
+  class="modal-overlay"
+  id="campaign-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">✨ New Campaign</h2>
+      <button class="modal-close" id="modal-close" aria-label="Close modal">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <form id="campaign-form" novalidate>
+        <div class="form-grid">
+
+          <div class="form-group full-width">
+            <label for="field-name">Campaign Name <span style="color:var(--danger)">*</span></label>
+            <input
+              type="text"
+              id="field-name"
+              placeholder="e.g. Summer Sale Promo"
+              required
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="field-post-id">
+              Instagram Post / Reel ID <span style="color:var(--danger)">*</span>
+            </label>
+            <input
+              type="text"
+              id="field-post-id"
+              placeholder="e.g. 17896129930786440"
+              required
+            />
+            <span class="field-hint">
+              Find this via Graph API Explorer: GET /{ig-user-id}/media → copy the <code>id</code> field.
+            </span>
+
+            <!-- Post preview (shown after ID is entered) -->
+            <div class="post-preview" id="post-preview" aria-live="polite">
+              <img id="preview-img" src="" alt="Post thumbnail" />
+              <div class="post-preview-text">
+                <div class="post-preview-type" id="preview-type">POST</div>
+                <div class="post-preview-caption" id="preview-caption"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="field-keywords">
+              Trigger Keywords <span style="color:var(--danger)">*</span>
+            </label>
+            <input
+              type="text"
+              id="field-keywords"
+              placeholder="interested, send me, info, link, dm me"
+              required
+            />
+            <span class="field-hint">
+              Comma-separated. Case-insensitive partial match. e.g. "link" matches "send me the link".
+            </span>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="field-comment-reply">
+              Public Comment Reply <span style="color:var(--danger)">*</span>
+            </label>
+            <textarea
+              id="field-comment-reply"
+              placeholder="Hey @username! We just sent you a DM with all the details! 🎉"
+              required
+            ></textarea>
+            <span class="field-hint">This reply is posted publicly under the comment.</span>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="field-dm-message">
+              Private DM Message <span style="color:var(--danger)">*</span>
+            </label>
+            <textarea
+              id="field-dm-message"
+              placeholder="Hi! Thanks for your interest 👋 Here's the link you requested: https://..."
+              required
+            ></textarea>
+            <span class="field-hint">Sent as a private Direct Message to the commenter.</span>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="campaign-save-btn" form="campaign-form" type="submit">
+        💾 Save Campaign
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notifications container -->
+<div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

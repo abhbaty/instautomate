@@ -1,0 +1,31 @@
+# Render deployment configuration
+# https://render.com/docs/render-yaml-spec
+
+services:
+  - type: web
+    name: instautomate
+    env: python
+    region: oregon
+    plan: free
+
+    # Build command
+    buildCommand: pip install -r requirements.txt
+
+    # Start command
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
+
+    # Health check
+    healthCheckPath: /health
+
+    # Environment variables (set these in the Render dashboard)
+    envVars:
+      - key: INSTAGRAM_ACCESS_TOKEN
+        sync: false
+      - key: INSTAGRAM_BUSINESS_ACCOUNT_ID
+        sync: false
+      - key: FACEBOOK_APP_SECRET
+        sync: false
+      - key: WEBHOOK_VERIFY_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        value: sqlite:///./app.db
