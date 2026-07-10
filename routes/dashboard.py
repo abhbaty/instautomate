@@ -16,9 +16,9 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/")
 async def root(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="dashboard.html")
 
 
 @router.get("/dashboard")
 async def dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="dashboard.html")
