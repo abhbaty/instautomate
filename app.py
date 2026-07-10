@@ -1,5 +1,11 @@
 import gradio as gr
+import spaces
 from main import app as custom_app
+
+# Dummy function to satisfy HF ZeroGPU runtime
+@spaces.GPU
+def dummy_gpu():
+    pass
 
 # Create a dummy Gradio interface to keep Hugging Face happy
 demo = gr.Blocks()
