@@ -1,22 +1,24 @@
+import spaces  # Must use HF's pre-installed version - NOT from pip
 import gradio as gr
-import spaces
 from main import app as custom_app
 
-# Dummy function to satisfy HF ZeroGPU runtime
 @spaces.GPU
-def dummy_gpu():
-    pass
+def gpu_startup():
+    """Dummy GPU function — satisfies HF ZeroGPU requirement."""
+    return "ready"
 
-# Create a dummy Gradio interface to keep Hugging Face happy
-demo = gr.Blocks()
-with demo:
-    gr.Markdown("# 🤖 InstaAutomate is Running!\n\nAccess your dashboard at [**`/dashboard`**](/dashboard).")
-    # Bind the GPU function to an event so HF detects it
-    btn = gr.Button("Wake GPU", visible=False)
-    btn.click(fn=dummy_gpu, inputs=[], outputs=[])
+with gr.Blocks() as demo:
+    gr.Markdown(
+        "# 🤖 InstaAutomate is Running!\n\n"
+        "Your automation tool is live. Open your "
+        "[**Dashboard →**](/dashboard) to manage campaigns."
+    )
+    # Bind GPU function to page load so HF detects it at startup
+    hidden_out = gr.Textbox(visible=False)
+    demo.load(fn=gpu_startup, inputs=None, outputs=hidden_out)
 
-# Mount our FastAPI app. Hugging Face's SDK will detect 'app' and run it using its own Uvicorn.
-app = gr.mount_gradio_app(custom_app, demo, path="/gradio_home")
+# Mount our FastAPI app into the Gradio server
+app = gr.mount_gradio_app(custom_app, demo, path="/gradio")
 
 if __name__ == "__main__":
     import uvicorn
