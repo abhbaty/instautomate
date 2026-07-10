@@ -11,6 +11,9 @@ def dummy_gpu():
 demo = gr.Blocks()
 with demo:
     gr.Markdown("# 🤖 InstaAutomate is Running!\n\nAccess your dashboard at [**`/dashboard`**](/dashboard).")
+    # Bind the GPU function to an event so HF detects it
+    btn = gr.Button("Wake GPU", visible=False)
+    btn.click(fn=dummy_gpu, inputs=[], outputs=[])
 
 # Mount our FastAPI app. Hugging Face's SDK will detect 'app' and run it using its own Uvicorn.
 app = gr.mount_gradio_app(custom_app, demo, path="/gradio_home")
